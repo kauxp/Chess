@@ -1,37 +1,44 @@
-// King Class
-var King = function (config) {
-    this.type = "king";
-    Piece.call(this, config);
-  };
-  
-  King.prototype = Object.create(Piece.prototype);
-  King.prototype.constructor = King;
-  
-  King.prototype.moveTo = function (targetPosition) {
-    let newCol = targetPosition.col.charCodeAt(0) - 65;
-    let newRow = parseInt(targetPosition.row);
-    let oldCol = this.position.charCodeAt(0) - 65;
-    let oldRow = parseInt(this.position[1]);
-  
-    let colDiff = Math.abs(newCol - oldCol);
-    let rowDiff = Math.abs(newRow - oldRow);
-  
-    // King can move one square in any direction
-    if (colDiff <= 1 && rowDiff <= 1) {
-      let targetPiece = this.board.getPieceAt(targetPosition);
-      if (targetPiece && targetPiece.color === this.color) {
-        console.log("Cannot capture own piece");
-        return false;
-      }
-  
-      if (targetPiece) {
-        this.kill(targetPiece);
-      }
-  
-      this.board.changeTurns();
-      return true;
-    }
-  
-    console.log("Invalid move for King");
-    return false;
-  };
+var King = function(config){
+  this.type = 'king';
+  Piece.call(this, config); 
+};
+// Inherit from Piece
+King.prototype = Object.create(Piece.prototype);
+King.prototype.constructor = King;
+
+King.prototype.isValidMove = function(targetPosition) {
+  const startPos = this.position;
+  const startCol = startPos[0].charCodeAt(0);
+  const startRow = parseInt(startPos[1]);
+  const targetCol = targetPosition.col.charCodeAt(0);
+  const targetRow = parseInt(targetPosition.row);
+
+  const colDiff = Math.abs(startCol - targetCol);
+  const rowDiff = Math.abs(startRow - targetRow);
+
+  // King can move one square in any direction
+  return colDiff <= 1 && rowDiff <= 1;
+};
+
+King.prototype.moveTo = function(targetPosition){
+  // Extract the current position (e.g., 'E1' -> 'E' and 1)
+  let currentCol = this.position[0];
+  let currentRow = parseInt(this.position[1]);
+
+  // Extract the target position (e.g., 'D2' -> 'D' and 2)
+  let targetCol = targetPosition.col;
+  let targetRow = parseInt(targetPosition.row);
+
+  // Calculate column and row differences
+  let colDifference = Math.abs(targetCol.charCodeAt(0) - currentCol.charCodeAt(0));
+  let rowDifference = Math.abs(targetRow - currentRow);
+
+  // The king can move only one square in any direction
+  if (colDifference <= 1 && rowDifference <= 1) {
+      // Valid move, update the position
+      this.position = targetCol + targetRow;
+      this.render(); // Re-render the piece at the new position
+  } else {
+      console.warn("Invalid move for the king.");
+  }
+};
